@@ -2,7 +2,7 @@ def check_in_stock(block):
     html_code = str(block)
     if "Add to Cart" in html_code:
         return True
-    elif "Email notification" in html_code:
+    elif "Email notification" in html_code or "Out of stock" in html_code:
         return False
     else:
         return None

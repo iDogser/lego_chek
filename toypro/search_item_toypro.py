@@ -1,11 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
 
-def search_item(item_id):
+def search_item_toypro(item_id):
     search_url = f"https://www.toypro.com/ca/search?search={item_id}"
     
     response = requests.get(search_url)
-    print(response)
     if response.status_code != 200:
         print(f"Ошибка запроса. Код ответа: {response.status_code}")
         return None
