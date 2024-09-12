@@ -22,10 +22,6 @@ def get_product_block(url):
     else:
         return None, False
     
-    
-
-
-
 def check_item_id(product_block):
     # Извлечение цены
     price_block = product_block.find('div', class_='c_product-top__price')
@@ -45,14 +41,12 @@ def check_item_id(product_block):
     # Извлечение всех LEGO Element ID
     element_id_block = product_block.find('li', text=lambda t: t and 'Element ID:' in t)
     if element_id_block:
+        
         element_ids_text = element_id_block.text.split(':')[-1].strip()
-        element_ids = [id.strip() for id in element_ids_text.split(',')]
+        # Преобразуем каждый ID в целое число (int)
+        element_ids = [int(id.strip()) for id in element_ids_text.split(',') if id.strip().isdigit()]
     else:
         element_ids = []
-
-    # Извлечение цвета
-    lego_color_block = product_block.find('li', text=lambda t: t and 'color:' in t)
-    lego_color = lego_color_block.text.split(':')[-1].strip() if lego_color_block else None
 
     # Обычный цвет
     color_block = product_block.find('li', text=lambda t: t and 'Color:' in t)
@@ -65,7 +59,5 @@ def check_item_id(product_block):
     else:
         image_url = "-"
 
-    # Приведение цены в нужный формат
-    price = re.search(r'C\$\d+,\d+', price).group(0)
     
-    return element_ids, price, color, lego_color, count_in_stock, image_url
+    return element_ids, price, color, count_in_stock, image_url
