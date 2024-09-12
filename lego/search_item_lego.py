@@ -18,7 +18,6 @@ def search_and_extract_product_info(item_id):
     product_blocks = soup.find_all('li', class_='ElementsList_leaf__3tVNf ElementsList_row-count-4__HKOE5')
     
     if not product_blocks:
-        print("Товары не найдены")
         return None, None, None, None
     
     # Берем первый товар

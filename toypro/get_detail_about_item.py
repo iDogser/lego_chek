@@ -2,10 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 import re
 
-
-import requests
-from bs4 import BeautifulSoup
-
 def get_product_block(url):
     # Запрос на страницу товара
     response = requests.get(url)
@@ -39,7 +35,10 @@ def check_item_id(product_block):
     stock_block = product_block.find('div', class_='c_product-top__stock--indicator')
     if stock_block:
         stock_text = stock_block.text.strip()
-        count_in_stock = int(stock_text.split()[1])
+        try:
+            count_in_stock = int(stock_text.split()[1])
+        except:
+            count_in_stock = 0
     else:
         count_in_stock = 0
 
