@@ -1,30 +1,35 @@
-import requests
+import aiohttp
 from bs4 import BeautifulSoup
+from bs4.element import Tag
+from typing import Dict, Union, List, Tuple, Optional
+
+# Определение типа результата
+ResultType = Dict[str, Union[str, int, float, bool, None]]
 
 
-def req_to_lego(url):
+async def req_to_lego(url: str) -> Optional[BeautifulSoup]:
     try:
-        # Выполняем запрос на страницу
-        response = requests.get(url)
-        response.raise_for_status()  # Проверяем, что запрос успешен
-    except requests.RequestException as e:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                response.raise_for_status()
+                html = await response.text()
+                return BeautifulSoup(html, 'html.parser')
+    except aiohttp.ClientError as e:
         print(f"Ошибка запроса: {e}")
         return None
 
-    # Парсим HTML-ответ
-    page_code_result_lego = BeautifulSoup(response.text, 'html.parser')
-    return(page_code_result_lego)
 
-def is_design_id(item_id, ids):
-    design_id_block = ids[1]
+
+def is_design_id(item_id: int, ids: List[str]) -> Tuple[bool, Optional[str]]:
+    design_id_block: str = ids[1] if len(ids) > 1 else None
     return str(item_id) == design_id_block, ids[1]
         
 
 
-def find_item_blocks_lego(page_code_process_lego, item_id: int):
+def find_item_blocks_lego(page_code_process_lego: BeautifulSoup, item_id: int) -> Tuple[bool, Optional[str], List[Tag]]:
     # Получаем все блоки с товарами
     filtred_blocks_lego = []
-    is_design_id_lego, design_id = True, None
+    is_design_id_lego, design_id = False, None
     all_product_blocks_lego = page_code_process_lego.find_all('li', class_='ElementsList_leaf__3tVNf ElementsList_row-count-4__HKOE5')
     for block in all_product_blocks_lego:
         # Находим элемент, содержащий ID
@@ -44,7 +49,7 @@ def find_item_blocks_lego(page_code_process_lego, item_id: int):
     return is_design_id_lego, design_id, filtred_blocks_lego
         
 
-def get_item_info_lego(block_lego):
+def get_item_info_lego(block_lego: Tag) -> ResultType:
     try:
         item_name_lego = block_lego.find('h2', class_='ElementLeaf_elementTitle__SwFh1 ds-body-sm-regular').text.strip()
     except:
@@ -66,9 +71,9 @@ def get_item_info_lego(block_lego):
         "image_url_lego": image_url_lego
     }
 
-def search_on_lego(item_id):
+async def search_on_lego(item_id: int) -> ResultType:
     lego_url = f"https://www.lego.com/en-us/pick-and-build/pick-a-brick?includeOutOfStock=true&query={item_id}&perPage=20"
-    page_code_lego = req_to_lego(lego_url)
+    page_code_lego = await req_to_lego(lego_url)
     is_design_id_lego, design_id, item_blocks_list = find_item_blocks_lego(page_code_lego, item_id)
 
     if len(item_blocks_list) >= 1:
