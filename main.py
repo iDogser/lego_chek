@@ -5,32 +5,28 @@ import asyncio
 
 
 def main():
-    item_id = int(input("Введите ID детали: ").strip())
+    while True:
+        try:
+            item_id = int(input("Введите ID детали: ").strip())
+            break
+        except:
+            print("Incorect ID")
     lego_result = search_on_lego(item_id)
     toypro_result = search_on_toypro(item_id)
+    merged_results = lego_result | toypro_result
+    merged_results["search_id"] = item_id
+    if not merged_results["is_design_id_toypro"] or not merged_results["is_design_id_lego"]:
+        merged_results["alt_search_bricklink"] = f"https://www.bricklink.com/v2/search.page?q={item_id}#T=A"
+        merged_results["alt_search_brickowl"] = f"https://www.brickowl.com/search/catalog?query={item_id}"
+        merged_results["alt_search_constructors"] = f"https://constructors.com.ua/ua/pick-brick?text={item_id}"
+        merged_results["alt_search_ebricks"] = f"https://ebricks.ru/products/search?sort=0&balance=&categoryId=&min_cost=&max_cost=&page=1&text={item_id}"
+        return merged_results
+    else:
+        return merged_results
 
-    print_info(item_id, lego_result, toypro_result)
 
 
 
 if __name__ == "__main__":
-    main()
-
-
-# async def main():
-#     item_id = int(input("Введите ID детали: ").strip())
-    
-#     # Асинхронный запуск обеих функций
-#     lego_task = asyncio.create_task(search_on_lego(item_id))
-#     toypro_task = asyncio.create_task(search_on_toypro(item_id))
-    
-#     # Ожидание завершения обеих задач
-#     lego_result = await lego_task
-#     toypro_result = await toypro_task
-    
-#     # Вызов функции для печати информации
-#     print_info(item_id, lego_result, toypro_result)
-
-# # Запуск программы через asyncio.run()
-# if __name__ == "__main__":
-#     asyncio.run(main())
+    result_search = main()
+    print_info(result_search)
