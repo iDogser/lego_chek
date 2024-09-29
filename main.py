@@ -3,7 +3,7 @@ from typing import Dict, Union, Optional
 
 from toypro.search_item_toypro import search_on_toypro
 from lego.search_item_lego import search_on_lego
-from print_results import print_info
+
 
 ResultType = Dict[str, Union[str, int, float, bool, None]]
 
@@ -28,13 +28,7 @@ def is_find_something(result_dict: ResultType, source: str) -> ResultType:
     return result_dict
 
 
-async def main() -> ResultType:
-    while True:
-        try:
-            item_id = int(input("Введите ID детали: ").strip())
-            break
-        except ValueError:
-            print("Некорректный ID")
+async def main(item_id: int) -> ResultType:
 
     # Параллельный запуск асинхронных запросов
     lego_task = asyncio.create_task(fetch_lego_info(item_id))
@@ -55,7 +49,3 @@ async def main() -> ResultType:
         
     return merged_results
 
-# Запуск программы
-if __name__ == "__main__":
-    result_search: ResultType = asyncio.run(main())
-    print_info(result_search)
